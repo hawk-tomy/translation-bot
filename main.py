@@ -75,12 +75,10 @@ class WebhookSender:
         sleep_until = 4
         while True:
             try:
-                if file is None:
-                    if msg is None:
-                        return
-                    await webhook.send(msg)
-                else:
+                if file is not None:
                     await webhook.send(file=file)
+                elif msg is not None:
+                    await webhook.send(msg)
             except Exception:
                 await asyncio.sleep(sleep_until)
                 sleep_until <<= 2
