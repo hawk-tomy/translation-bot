@@ -1,0 +1,75 @@
+[project]
+name = "translation-bot"
+version = "0.1.0"
+description = "translation bot for discord using DeepL."
+authors = [{ name = "hawk-tomy", email = "me@mail.hawk-tomy.dev" }]
+requires-python = "==3.12.*"
+dependencies = [
+    "discord.py@git+https://github.com/Rapptz/discord.py.git@master",
+    "asqlite@git+https://github.com/Rapptz/asqlite.git@master",
+    "discord-ext-flow@git+https://github.com/keizaiya/discord-ext-flow.git@main",
+    # .
+]
+readme = "README.md"
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+dev = [
+    "pyright>=1.1.361",
+    "mypy>=1.10.0",
+    "ruff>=0.4.3",
+    #.
+]
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.scripts]
+format = "ruff format ."
+ruff = "ruff check ."
+pyright = "pyright ."
+mypy = "mypy ."
+check = { composite = ["format", "ruff", "pyright", "mypy"], keep_going = true }
+
+[tool.pyright]
+typeCheckingMode = "strict"
+
+reportGeneralTypeIssues = "warning"
+
+reportImportCycles = "none"
+
+useLibraryCodeForTypes = true
+strictListInference = true
+strictDictionaryInference = true
+
+reportFunctionMemberAccess = false
+reportIncompatibleMethodOverride = false
+reportPrivateUsage = false
+reportUnusedImport = false
+reportUnnecessaryIsInstance = false
+
+[tool.ruff]
+line-length = 120
+fix = true
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+combine-as-imports = true
+
+[tool.mypy]
+files = "**/*.py,**/*.pyi"
+
+allow_redefinition = true
+check_untyped_defs = true
+warn_redundant_casts = true
+show_error_context = true
+show_column_numbers = true
+
+warn_unused_ignores = false
+warn_no_return = false
