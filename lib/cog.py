@@ -42,7 +42,7 @@ class Translator(Cog):
         self.bot.tree.remove_command(self.translate_instance.name)
 
     def translate_wrapper(self):
-        @context_menu()
+        @context_menu()  # type: ignore[arg-type]
         @allowed_contexts(guilds=True, dms=True, private_channels=True)
         @allowed_installs(guilds=False, users=True)  # type: ignore[reportUntypedFunctionDecorator]
         async def translate(interaction: Interaction, msg: Message):
@@ -51,7 +51,7 @@ class Translator(Cog):
 
         return translate
 
-    @command()
+    @command()  # type: ignore[arg-type]
     @allowed_contexts(guilds=False, dms=True, private_channels=False)
     @allowed_installs(guilds=False, users=True)  # type: ignore[reportUntypedFunctionDecorator]
     async def usage(self, interaction: Interaction):
@@ -59,7 +59,7 @@ class Translator(Cog):
         user_id = interaction.user.id
         await Controller(ProxyModel(await self.api_client.fetch_usage(user_id))).invoke(interaction)
 
-    @command()
+    @command()  # type: ignore[arg-type]
     @allowed_contexts(guilds=False, dms=True, private_channels=False)
     @allowed_installs(guilds=False, users=True)  # type: ignore[reportUntypedFunctionDecorator]
     async def setting(self, interaction: Interaction):

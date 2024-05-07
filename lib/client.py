@@ -60,7 +60,7 @@ class Client:
 
     def process_status(self, status: int) -> str | None:
         if status == 200:
-            return
+            return None
         elif status == 403:
             return 'Invalid DeepL token. Please check your token.'
         elif status == 456:

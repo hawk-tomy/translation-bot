@@ -16,7 +16,7 @@ from discord.ext.flow import (
 
 from .client import DBClient, is_free_user
 from .db import UserInfo
-from .type import valid_locale_strings
+from .type import is_valid_locale, valid_locale_strings
 
 if TYPE_CHECKING:
     from bot import Bot
@@ -83,7 +83,8 @@ class SettingModel(ModelBase):
         def select_callback(interaction: Interaction, locales: list[str]):
             assert len(locales) == 1
             locale = locales[0]
-            self.user_info = self.user_info._replace(target_locale=locale)
+            if is_valid_locale(locale):
+                self.user_info = self.user_info._replace(target_locale=locale)
             return Result.send_message(self.message())
 
         detected_locale = await self.bot.api_client.detect_user_locale(interaction.user.id, interaction.locale)

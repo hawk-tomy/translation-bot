@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal, TypeGuard, get_args
 
-type LocaleString = Literal[
+type LocaleString = Literal[  # type: ignore[valid-type]
     'AR',
     'BG',
     'CS',

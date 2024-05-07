@@ -22,7 +22,7 @@ class FormatterWithTZ(logging.Formatter):
         return datetime.datetime.fromtimestamp(record.created).astimezone(tz=JST).isoformat()
 
 
-class QueueWithAsyncFor[T](asyncio.Queue[T]):
+class QueueWithAsyncFor[T](asyncio.Queue[T]):  # type: ignore[valid-type, name-defined]
     def __aiter__(self):
         return self
 
@@ -31,7 +31,7 @@ class QueueWithAsyncFor[T](asyncio.Queue[T]):
 
 
 class WebhookHandler(logging.Handler):
-    def __init__(self, queue: QueueWithAsyncFor[str]) -> None:
+    def __init__(self, queue: QueueWithAsyncFor[str]) -> None:  # type: ignore[type-arg]
         self.queue = queue
         super().__init__(level=logging.WARNING)
 
@@ -56,7 +56,7 @@ class WebhookCtxMgr:
 
 
 class WebhookSender:
-    def __init__(self, url: str, queue: QueueWithAsyncFor[str]) -> None:
+    def __init__(self, url: str, queue: QueueWithAsyncFor[str]) -> None:  # type: ignore[type-arg]
         self.url = url
         self.queue = queue
 
@@ -86,7 +86,7 @@ class WebhookSender:
                 break
 
 
-def setup_logging(queue: QueueWithAsyncFor[str]):
+def setup_logging(queue: QueueWithAsyncFor[str]):  # type: ignore[type-arg]
     logging.getLogger('discord').setLevel(logging.NOTSET)
     logging.getLogger('asyncio').setLevel(logging.NOTSET)
     logging.getLogger('lib').setLevel(logging.NOTSET)
@@ -114,7 +114,7 @@ def setup_logging(queue: QueueWithAsyncFor[str]):
 
 
 async def main():
-    queue = QueueWithAsyncFor[str]()
+    queue: QueueWithAsyncFor[str] = QueueWithAsyncFor()  # type: ignore[type-arg]
     setup_logging(queue)
 
     from bot import Bot
