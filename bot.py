@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import os
+from logging import getLogger
 
 from asqlite import create_pool
 from discord import Intents
 from discord.ext import commands
 
 from lib import Client, Translator
+
+logger = getLogger(__name__)
 
 
 class Bot(commands.Bot):
@@ -23,6 +26,8 @@ class Bot(commands.Bot):
             await db.create_table()
 
         await self.add_cog(Translator(self, self.api_client))
+        commands = await self.tree.sync()
+        logger.info(f'synced commands are: {', '.join(cmd.mention for cmd in commands)}')
 
     async def runner(self):
         async with self, create_pool(os.getenv('DATABASE_PATH', 'db/db.sqlite3')) as pool:
