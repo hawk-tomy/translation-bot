@@ -77,7 +77,7 @@ class SettingModel(ModelBase):
         token = texts[0]
 
         self.user_info = self.user_info._replace(token=token)
-        return Result.send_message(self.message())
+        return Result.send_message(self.message(), interaction=interaction)
 
     async def locale_button(self, interaction: Interaction):
         def select_callback(interaction: Interaction, locales: list[str]):
