@@ -1,0 +1,13 @@
+services:
+
+  bot:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    container_name: translation-bot
+    env_file:
+      - ./.env
+    volumes:
+      - ./log:/app/log
