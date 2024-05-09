@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from discord import Interaction, Message
 from discord.app_commands import allowed_contexts, allowed_installs, command, context_menu
-from discord.ext.commands import Cog
+from discord.ext import commands
 from discord.ext.flow import Controller, Message as MessageData, ModelBase
 
 from .client import Client
@@ -28,7 +28,7 @@ class ProxyModel(ModelBase):
         return self.m
 
 
-class Translator(Cog):
+class Translator(commands.Cog):
     def __init__(self, bot: Bot, api_client: Client) -> None:
         super().__init__()
         self.api_client = api_client
