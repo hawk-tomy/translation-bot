@@ -15,7 +15,7 @@ from .locale import LocaleString, discord_locale_into_deepl_locale
 if TYPE_CHECKING:
     from bot import Bot
 
-USER_AGENT = f'personal-use discord bot. (python:{version} aiohttp:{aiohttp_version})'
+USER_AGENT = f'discord translation bot (repo:https://github.com/hawk-tomy/translation-bot.git python:{version} aiohttp:{aiohttp_version})'
 logger = getLogger(__name__)
 
 
@@ -59,11 +59,14 @@ class Client:
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
             if user_info.is_empty():
-                return MessageData(content='You should set your DeepL token and target locale first.', ephemeral=True)
+                return MessageData(
+                    content='You should set your DeepL token and target locale on DM first.',
+                    ephemeral=True,
+                )
             if user_info.token is None:
-                return MessageData(content='You should set your DeepL token first.', ephemeral=True)
+                return MessageData(content='You should set your DeepL token on DM first.', ephemeral=True)
             if user_info.target_locale is None:
-                return MessageData(content='You should set your target locale first.', ephemeral=True)
+                return MessageData(content='You should set your target locale on DM first.', ephemeral=True)
 
         k, v = zip(*pair.encode())
         session = self.free_api_session if is_free_user(user_info.token) else self.pro_api_session
@@ -84,7 +87,7 @@ class Client:
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
             if user_info.token is None:
-                return MessageData(content='You should set your DeepL token first.')
+                return MessageData(content='You should set your DeepL token on DM first.')
 
         session = self.free_api_session if is_free_user(user_info.token) else self.pro_api_session
         async with session.get(
