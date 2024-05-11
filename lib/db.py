@@ -33,6 +33,7 @@ class DBClient:
         return self
 
     async def __aexit__(self, et: type[BaseException] | None, ev: BaseException | None, eb: TracebackType | None):
+        await self.conn.commit()
         return await self.ctx.__aexit__(et, ev, eb)
 
     async def create_table(self):
@@ -40,13 +41,13 @@ class DBClient:
             'CREATE TABLE IF NOT EXISTS user (user_id INT PRIMARY KEY, token TEXT, target_locale TEXT)'
         )
 
-    async def get_user_info(self, user_id: int) -> UserInfo | None:
+    async def get_user_info(self, user_id: int) -> UserInfo:
         async with self.conn.execute('SELECT token, target_locale FROM user WHERE user_id = ?', (user_id,)) as cur:
             rows = await cur.fetchone()
             if rows:
                 return UserInfo(user_id, rows[0][0], rows[0][1])
 
-        return None
+        return UserInfo(user_id, None, None)
 
     async def update_user_info(self, user_info: UserInfo) -> None:
         await self.conn.execute(

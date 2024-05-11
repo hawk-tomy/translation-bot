@@ -10,7 +10,7 @@ from discord.ext.flow import Message as MessageData
 
 from .db import DBClient, is_free_user
 from .string_pair import StringPair
-from .type import LocaleString, is_valid_locale
+from .type import LocaleString, discord_locale_into_deepl_locale
 
 if TYPE_CHECKING:
     from bot import Bot
@@ -30,23 +30,6 @@ class Client:
     def db(self) -> DBClient:
         return DBClient(self.bot, self.pool.acquire())
 
-    def discord_locale_into_deepl_locale(self, discord_locale: Locale) -> LocaleString | None:
-        """Convert discord_locale into DeepL locale. If discord_locale is not supported, return None."""
-        locale = discord_locale.value.upper()
-        if is_valid_locale(locale):
-            return locale
-        match locale:
-            case 'ES-419' | 'ES-ES':
-                return 'ES'
-            case 'SV-SE':
-                return 'SV'
-            case 'ZH-CN' | 'ZH-TW':
-                return 'ZH'
-            case 'NO':
-                return 'NB'
-            case _:
-                return None
-
     async def detect_user_locale(self, user_id: int, discord_locale: Locale) -> LocaleString | None:
         """Detect user's target locale from database or discord locale. This value is used as default value for locale selection.
 
@@ -54,8 +37,8 @@ class Client:
         """
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
-            if user_info is None or user_info.target_locale is None:
-                return self.discord_locale_into_deepl_locale(discord_locale)
+            if user_info.target_locale is None:
+                return discord_locale_into_deepl_locale(discord_locale)
             return user_info.target_locale
 
     def process_status(self, status: int) -> str | None:
@@ -75,7 +58,7 @@ class Client:
     async def translate(self, user_id: int, pair: StringPair) -> MessageData:
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
-            if user_info is None or user_info.is_empty():
+            if user_info.is_empty():
                 return MessageData(content='You should set your DeepL token and target locale first.', ephemeral=True)
             if user_info.token is None:
                 return MessageData(content='You should set your DeepL token first.', ephemeral=True)
@@ -100,7 +83,7 @@ class Client:
     async def fetch_usage(self, user_id: int) -> MessageData:
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
-            if user_info is None or user_info.token is None:
+            if user_info.token is None:
                 return MessageData(content='You should set your DeepL token first.', ephemeral=True)
 
         session = self.free_api_session if is_free_user(user_info.token) else self.pro_api_session

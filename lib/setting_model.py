@@ -1,115 +1,85 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
-from discord import Interaction, SelectOption
-from discord.ext.flow import (
-    Button,
-    Message as MessageData,
-    ModalConfig,
-    ModelBase,
-    Result,
-    Select,
-    TextInput,
-    send_modal,
-)
+from discord import Interaction, ui
+from discord.app_commands import Group, Transform, allowed_contexts, allowed_installs, command
 
-from .client import DBClient, is_free_user
+from .client import Client as ApiClient, is_free_user
 from .db import UserInfo
-from .type import is_valid_locale, valid_locale_strings
+from .type import LocaleString, LocaleStringTransformer
 
 if TYPE_CHECKING:
     from bot import Bot
 
+    from .cog import Translator
 
-class SettingModel(ModelBase):
-    def __init__(self, bot: Bot, db: DBClient, user_id: int):
-        self.bot = bot
-        self.db = db
-        self.user_id = user_id
 
-    async def before_invoke(self):
-        self.user_info = await self.db.get_user_info(self.user_id) or UserInfo(self.user_id, None, None)
+class TokenInputModal(ui.Modal):
+    token: ui.TextInput[Self] = ui.TextInput(label='token', placeholder='your DeepL token.', default='')
+
+    def __init__(self, api_client: ApiClient, user_info: UserInfo) -> None:
+        super().__init__(title='your DeepL token')
+        self.api_client = api_client
+        self.user_info = user_info
+
+        if user_info.token is not None:
+            self.token.default = user_info.token
+
+    async def on_submit(self, interaction: Interaction[Bot]) -> None:
+        user_info = self.user_info._replace(token=self.token.value)
+        async with self.api_client.db() as db:
+            await db.update_user_info(user_info)
+
+        await interaction.response.send_message('your token has been saved!')
+
+
+@allowed_contexts(guilds=False, dms=True, private_channels=False)
+@allowed_installs(guilds=False, users=True)
+class Setting(Group):
+    """setting of token and target locale"""
+
+    cog: Translator
+
+    def __init__(self):
+        super().__init__(name='setting')
 
     @property
-    def locale_string(self):
-        return self.user_info.target_locale or 'NOT SET'
+    def api_client(self):
+        return self.cog.api_client
 
-    def message(self) -> MessageData:
+    @command()
+    async def show(self, interaction: Interaction):
+        """show your setting."""
+        async with self.api_client.db() as db:
+            user_info = await db.get_user_info(interaction.user.id)
         has_token = (
             'NOT SET'
-            if self.user_info.token is None
-            else 'API Free user token'
-            if is_free_user(self.user_info.token)
-            else 'API Pro user token'
+            if user_info.token is None
+            else f'API {'Free' if is_free_user(user_info.token) else 'Pro'} user token'
         )
-
-        return MessageData(
-            content='\n'.join(
+        await interaction.response.send_message(
+            '\n'.join(
                 (
                     '## setting',
                     f'- token: {has_token}',
-                    f'- target locale: {self.locale_string}',
-                    '',
-                    'if you want to save changes, please click the finish button.',
+                    f'- target locale: {user_info.target_locale or 'NOT SET'}',
                 )
-            ),
-            items=[
-                Button(callback=self.token_button, label='set token'),
-                Button(callback=self.locale_button, label='set locale'),
-                Button(callback=self.finish_button, label='finish'),
-            ],
-            edit_original=True,
-        )
-
-    async def token_button(self, interaction: Interaction):
-        texts, interaction = await send_modal(
-            interaction,
-            ModalConfig(title='your DeepL token'),
-            [TextInput(label='token', placeholder='your DeepL token.', default=self.user_info.token or '')],
-        )
-        assert len(texts) == 1
-        token = texts[0]
-
-        self.user_info = self.user_info._replace(token=token)
-        return Result.send_message(self.message(), interaction=interaction)
-
-    async def locale_button(self, interaction: Interaction):
-        def select_callback(interaction: Interaction, locales: list[str]):
-            assert len(locales) == 1
-            locale = locales[0]
-            if is_valid_locale(locale):
-                self.user_info = self.user_info._replace(target_locale=locale)
-            return Result.send_message(self.message())
-
-        detected_locale = await self.bot.api_client.detect_user_locale(interaction.user.id, interaction.locale)
-        select = Select(
-            callback=select_callback,
-            options=[
-                SelectOption(
-                    label=locale,
-                    value=locale,
-                    default=detected_locale is not None and detected_locale == locale,
-                )
-                for locale in valid_locale_strings
-            ],
-            min_values=1,
-            max_values=1,
-        )
-
-        return Result.send_message(
-            MessageData(
-                content='\n'.join(
-                    (
-                        f'now target locale is `{self.locale_string}`. ',
-                        'you can choose target locale from below.',
-                    )
-                ),
-                items=[select],
-                edit_original=True,
             )
         )
 
-    async def finish_button(self, _: Interaction):
-        await self.db.update_user_info(self.user_info)
-        return Result.send_message(MessageData(content='your setting has been saved!', edit_original=True))
+    @command()
+    async def token(self, interaction: Interaction):
+        """set DeepL token for translation in modal."""
+        async with self.api_client.db() as db:
+            user_info = await db.get_user_info(interaction.user.id)
+        await interaction.response.send_modal(TokenInputModal(self.api_client, user_info))
+
+    @command()
+    async def locale(self, interaction: Interaction, locale: Transform[LocaleString, LocaleStringTransformer]):
+        """set target locale for translation in select."""
+        async with self.api_client.db() as db:
+            user_info = await db.get_user_info(interaction.user.id)
+            await db.update_user_info(user_info=user_info._replace(target_locale=locale))
+
+        await interaction.response.send_message(f'target locale has been set to `{locale}`.')

@@ -9,7 +9,7 @@ from discord.ext import commands
 from discord.ext.flow import Controller, Message as MessageData, ModelBase
 
 from .client import Client
-from .setting_model import SettingModel
+from .setting_model import Setting
 from .string_pair import StringPair
 
 if TYPE_CHECKING:
@@ -33,6 +33,7 @@ class Translator(commands.Cog):
         super().__init__()
         self.api_client = api_client
         self.bot = bot
+        self.setting.cog = self
 
     async def cog_load(self) -> None:
         self.translate_instance = self.translate_wrapper()
@@ -44,7 +45,7 @@ class Translator(commands.Cog):
     def translate_wrapper(self):
         @context_menu()  # type: ignore[arg-type]
         @allowed_contexts(guilds=True, dms=True, private_channels=True)
-        @allowed_installs(guilds=False, users=True)  # type: ignore[reportUntypedFunctionDecorator]
+        @allowed_installs(guilds=False, users=True)
         async def translate(interaction: Interaction, msg: Message):
             user_id = interaction.user.id
             await Controller(ProxyModel(await self.api_client.translate(user_id, StringPair(msg)))).invoke(interaction)
@@ -53,17 +54,10 @@ class Translator(commands.Cog):
 
     @command()  # type: ignore[arg-type]
     @allowed_contexts(guilds=False, dms=True, private_channels=False)
-    @allowed_installs(guilds=False, users=True)  # type: ignore[reportUntypedFunctionDecorator]
+    @allowed_installs(guilds=False, users=True)
     async def usage(self, interaction: Interaction):
         """show amount of usage"""
         user_id = interaction.user.id
         await Controller(ProxyModel(await self.api_client.fetch_usage(user_id))).invoke(interaction)
 
-    @command()  # type: ignore[arg-type]
-    @allowed_contexts(guilds=False, dms=True, private_channels=False)
-    @allowed_installs(guilds=False, users=True)  # type: ignore[reportUntypedFunctionDecorator]
-    async def setting(self, interaction: Interaction):
-        """setting of token and target locale"""
-        async with self.api_client.db() as db:
-            user_id = interaction.user.id
-            await Controller(SettingModel(self.bot, db, user_id)).invoke(interaction)
+    setting = Setting()
