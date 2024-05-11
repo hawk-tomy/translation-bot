@@ -27,18 +27,13 @@ class SettingModel(ModelBase):
         self.bot = bot
         self.db = db
         self.user_id = user_id
-        self.do_insert = False
 
     async def before_invoke(self):
-        user_info = await self.db.get_user_info(self.user_id)
-        if user_info is None:
-            self.do_insert = True
-            user_info = UserInfo(self.user_id, None, None)
-        self.user_info = user_info
+        self.user_info = await self.db.get_user_info(self.user_id) or UserInfo(self.user_id, None, None)
 
     @property
     def locale_string(self):
-        return 'NOT SET' if self.user_info.target_locale is None else self.user_info.target_locale
+        return self.user_info.target_locale or 'NOT SET'
 
     def message(self) -> MessageData:
         has_token = (
@@ -64,7 +59,7 @@ class SettingModel(ModelBase):
                 Button(callback=self.locale_button, label='set locale'),
                 Button(callback=self.finish_button, label='finish'),
             ],
-            ephemeral=True,
+            edit_original=True,
         )
 
     async def token_button(self, interaction: Interaction):
@@ -111,13 +106,10 @@ class SettingModel(ModelBase):
                     )
                 ),
                 items=[select],
-                ephemeral=True,
+                edit_original=True,
             )
         )
 
     async def finish_button(self, _: Interaction):
-        if self.do_insert:
-            await self.db.set_user_info(self.user_info)
-        else:
-            await self.db.update_user_info(self.user_info)
-        return Result.send_message(MessageData(content='your setting has been saved!', ephemeral=True))
+        await self.db.update_user_info(self.user_info)
+        return Result.send_message(MessageData(content='your setting has been saved!', edit_original=True))
