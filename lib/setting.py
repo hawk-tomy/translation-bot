@@ -7,7 +7,7 @@ from discord.app_commands import Group, Transform, allowed_contexts, allowed_ins
 
 from .client import Client as ApiClient, is_free_user
 from .db import UserInfo
-from .type import LocaleString, LocaleStringTransformer
+from .locale import LocaleString, LocaleStringTransformer
 
 if TYPE_CHECKING:
     from bot import Bot

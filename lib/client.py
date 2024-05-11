@@ -10,7 +10,7 @@ from discord.ext.flow import Message as MessageData
 
 from .db import DBClient, is_free_user
 from .string_pair import StringPair
-from .type import LocaleString, discord_locale_into_deepl_locale
+from .locale import LocaleString, discord_locale_into_deepl_locale
 
 if TYPE_CHECKING:
     from bot import Bot
@@ -84,7 +84,7 @@ class Client:
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
             if user_info.token is None:
-                return MessageData(content='You should set your DeepL token first.', ephemeral=True)
+                return MessageData(content='You should set your DeepL token first.')
 
         session = self.free_api_session if is_free_user(user_info.token) else self.pro_api_session
         async with session.get(
@@ -93,7 +93,7 @@ class Client:
         ) as res:
             msg = self.process_status(res.status)
             if msg is not None:
-                return MessageData(content=msg, ephemeral=True)
+                return MessageData(content=msg)
             json = await res.json()
 
         embed = Embed(title='\u2139\ufe0f usage', colour=Colour.blue())
@@ -104,4 +104,4 @@ class Client:
                     name=f'{key} count',
                     value=f'{json[f"{key}_count"]}/{json[f"{key}_limit"]}',
                 )
-        return MessageData(embeds=[embed], ephemeral=True)
+        return MessageData(embeds=[embed])

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, NamedTuple, Self
 
 from asqlite import _AcquireProxyContextManager
 
-from .type import LocaleString
+from .locale import LocaleString
 
 if TYPE_CHECKING:
     from bot import Bot

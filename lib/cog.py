@@ -9,7 +9,7 @@ from discord.ext import commands
 from discord.ext.flow import Controller, Message as MessageData, ModelBase
 
 from .client import Client
-from .setting_model import Setting
+from .setting import Setting
 from .string_pair import StringPair
 
 if TYPE_CHECKING:
