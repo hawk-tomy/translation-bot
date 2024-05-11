@@ -9,8 +9,8 @@ from discord import Colour, Embed, Locale
 from discord.ext.flow import Message as MessageData
 
 from .db import DBClient, is_free_user
-from .string_pair import StringPair
 from .locale import LocaleString, discord_locale_into_deepl_locale
+from .string_pair import StringPair
 
 if TYPE_CHECKING:
     from bot import Bot

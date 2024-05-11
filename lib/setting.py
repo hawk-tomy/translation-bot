@@ -10,8 +10,6 @@ from .db import UserInfo
 from .locale import LocaleString, LocaleStringTransformer
 
 if TYPE_CHECKING:
-    from bot import Bot
-
     from .cog import Translator
 
 
@@ -26,7 +24,7 @@ class TokenInputModal(ui.Modal):
         if user_info.token is not None:
             self.token.default = user_info.token
 
-    async def on_submit(self, interaction: Interaction[Bot]) -> None:
+    async def on_submit(self, interaction: Interaction) -> None:
         user_info = self.user_info._replace(token=self.token.value)
         async with self.api_client.db() as db:
             await db.update_user_info(user_info)

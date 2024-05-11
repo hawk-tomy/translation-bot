@@ -43,7 +43,7 @@ type LocaleString = Literal[  # type: ignore[valid-type]
     'ZH',
 ]
 
-valid_locale_strings: tuple[LocaleString, ...] = get_args(LocaleString.__value__)
+valid_locale_strings: tuple[LocaleString, ...] = get_args(LocaleString.__value__)  # type: ignore[attr-defined]
 
 
 def is_valid_locale(locale: str) -> TypeGuard[LocaleString]:
@@ -75,10 +75,10 @@ class LocaleStringTransformer(Transformer):
 
         raise ValueError(f'invalid locale: {value}')
 
-    async def autocomplete(self, interaction: Interaction, value: str) -> list[Choice[str]]:
+    async def autocomplete(self, interaction: Interaction, value: str) -> list[Choice[str]]:  # type: ignore[override]
         value = value.upper()
 
-        choices: list[Choice[LocaleString]] = []
+        choices: list[Choice[str]] = []
         if discord_locale := discord_locale_into_deepl_locale(interaction.locale):
             choices.append(Choice(name=discord_locale, value=discord_locale))
 
