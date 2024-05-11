@@ -104,14 +104,6 @@ def discord_locale_into_deepl_locale(discord_locale: DiscordLocale) -> LocaleStr
 
 
 class LocaleStringTransformer(Transformer):
-    @property
-    def min_value(self) -> int:
-        return 1
-
-    @property
-    def max_value(self) -> int:
-        return 1
-
     async def transform(self, interaction: Interaction, value: str) -> LocaleString:
         if is_valid_locale(value):
             return value
@@ -128,12 +120,9 @@ class LocaleStringTransformer(Transformer):
         for locale in valid_locale_strings:
             if len(choices) >= 25:
                 break
-            if value:
-                if value in locale:
-                    choices.append(Choice(name=locale, value=locale))
-                else:
-                    continue
-            else:
-                choices.append(Choice(name=locale, value=locale))
+            if not value or value in locale:
+                choice = Choice(name=locale, value=locale)
+                if choice not in choices:
+                    choices.append(choice)
 
         return choices
