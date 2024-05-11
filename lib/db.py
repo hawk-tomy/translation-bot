@@ -42,21 +42,14 @@ class DBClient:
 
     async def get_user_info(self, user_id: int) -> UserInfo | None:
         async with self.conn.execute('SELECT token, target_locale FROM user WHERE user_id = ?', (user_id,)) as cur:
-            rows = await cur.fetchmany()
+            rows = await cur.fetchone()
             if rows:
                 return UserInfo(user_id, rows[0][0], rows[0][1])
 
-        await self.conn.execute('INSERT INTO user (user_id, token, target_locale) VALUES (?, NULL, NULL)', (user_id,))
         return None
-
-    async def set_user_info(self, user_info: UserInfo) -> None:
-        await self.conn.execute(
-            'INSERT INTO user (user_id, token, target_locale) VALUES (?, ?, ?)',
-            (user_info.user_id, user_info.token, user_info.target_locale),
-        )
 
     async def update_user_info(self, user_info: UserInfo) -> None:
         await self.conn.execute(
-            'UPDATE user SET token = ?, target_locale = ? WHERE user_id = ?',
-            (user_info.token, user_info.target_locale, user_info.user_id),
+            'REPLACE INTO user (user_id, token, target_locale) VALUES (?, ?, ?)',
+            (user_info.user_id, user_info.token, user_info.target_locale),
         )
