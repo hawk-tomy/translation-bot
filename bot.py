@@ -30,6 +30,6 @@ class Bot(commands.Bot):
         logger.info(f'synced commands are: {', '.join(cmd.mention for cmd in commands)}')
 
     async def runner(self):
-        async with self, create_pool(os.getenv('DATABASE_PATH', 'db/db.sqlite3')) as pool:
+        async with self, create_pool(os.getenv('DATABASE_PATH', './db/db.sqlite3')) as pool:
             self.pool = pool
             await self.start(token=os.environ['DISCORD_TOKEN'])

@@ -45,7 +45,7 @@ class DBClient:
         async with self.conn.execute('SELECT token, target_locale FROM user WHERE user_id = ?', (user_id,)) as cur:
             rows = await cur.fetchone()
             if rows:
-                return UserInfo(user_id, rows[0], rows[0])
+                return UserInfo(user_id, rows[0], rows[1])
 
         return UserInfo(user_id, None, None)
 

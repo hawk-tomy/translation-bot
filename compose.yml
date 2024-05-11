@@ -11,3 +11,4 @@ services:
       - ./.env
     volumes:
       - ./log:/app/log
+      - ./db:/app/db
