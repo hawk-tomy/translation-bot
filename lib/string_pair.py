@@ -75,4 +75,4 @@ class StringPair:
                     logger.warning(f'invalid key: key={k}, value={v}')
             else:
                 logger.warning(f'invalid key: key={k}, value={v}')
-        return MessageData(content=content, embeds=embeds)
+        return MessageData(content=content, embeds=embeds, ephemeral=True)
