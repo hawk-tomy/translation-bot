@@ -5,11 +5,25 @@ from sys import version
 from typing import TYPE_CHECKING
 
 from aiohttp import ClientSession, __version__ as aiohttp_version
-from discord import Colour, Embed, Locale
+from discord import Locale
+from discord.app_commands import locale_str
 from discord.ext.flow import Message as MessageData
 
 from .db import DBClient, is_free_user
 from .locale import LocaleString, discord_locale_into_deepl_locale
+from .localization import (
+    MSG_403,
+    MSG_429,
+    MSG_456,
+    MSG_500_OR_MORE,
+    MSG_NEED_LOCALE,
+    MSG_NEED_TOKEN,
+    MSG_NEED_TOKEN_AND_LOCALE,
+    MSG_UNKNOWN_STATUS,
+    MSG_USAGE_CHARACTER_COUNT,
+    MSG_USAGE_DOCUMENT_COUNT,
+    MSG_USAGE_TEAM_DOCUMENT_COUNT,
+)
 from .string_pair import StringPair
 
 if TYPE_CHECKING:
@@ -17,6 +31,13 @@ if TYPE_CHECKING:
 
 USER_AGENT = f'discord translation bot (repo:https://github.com/hawk-tomy/translation-bot.git python:{version} aiohttp:{aiohttp_version})'
 logger = getLogger(__name__)
+
+
+class UnexpectedCondition(Exception):
+    msg: locale_str
+
+    def __init__(self, message: locale_str) -> None:
+        self.msg = message
 
 
 class Client:
@@ -41,32 +62,30 @@ class Client:
                 return discord_locale_into_deepl_locale(discord_locale)
             return user_info.target_locale
 
-    def process_status(self, status: int) -> str | None:
-        if status == 200:
-            return None
-        elif status == 403:
-            return 'Invalid DeepL token. Please check your token.'
-        elif status == 456:
-            return 'Quota exceeded. Can not translate anymore.'
-        elif status == 429:
-            return 'Too many requests. Please wait a moment.'
-        elif status >= 500:
-            return 'Internal server error. Please try again later.'
-        else:  # Unknown status
-            return 'Unknown error. Please try again later.'
+    def process_status(self, status: int):
+        match status:
+            case 200:
+                return
+            case 403:
+                raise UnexpectedCondition(MSG_403)
+            case 456:
+                raise UnexpectedCondition(MSG_456)
+            case 429:
+                raise UnexpectedCondition(MSG_429)
+            case status if status >= 500:
+                raise UnexpectedCondition(MSG_500_OR_MORE)
+            case _:  # Unknown status
+                raise UnexpectedCondition(MSG_UNKNOWN_STATUS)
 
     async def translate(self, user_id: int, pair: StringPair) -> MessageData:
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
             if user_info.is_empty():
-                return MessageData(
-                    content='You should set your DeepL token and target locale on DM first.',
-                    ephemeral=True,
-                )
+                raise UnexpectedCondition(MSG_NEED_TOKEN_AND_LOCALE)
             if user_info.token is None:
-                return MessageData(content='You should set your DeepL token on DM first.', ephemeral=True)
+                raise UnexpectedCondition(MSG_NEED_TOKEN)
             if user_info.target_locale is None:
-                return MessageData(content='You should set your target locale on DM first.', ephemeral=True)
+                raise UnexpectedCondition(MSG_NEED_LOCALE)
 
         k, v = zip(*pair.encode())
         session = self.free_api_session if is_free_user(user_info.token) else self.pro_api_session
@@ -76,35 +95,31 @@ class Client:
             headers={'Authorization': f'DeepL-Auth-Key {user_info.token}'},
             params={'text': v, 'target_lang': user_info.target_locale},
         ) as resp:
-            msg = self.process_status(resp.status)
-            if msg is not None:
-                return MessageData(content=msg, ephemeral=True)
+            self.process_status(resp.status)
             json = await resp.json()
 
         return pair.decode(tuple(zip(k, (v['text'] for v in json['translations']))))
 
-    async def fetch_usage(self, user_id: int) -> MessageData:
+    async def fetch_usage(self, user_id: int) -> list[tuple[locale_str, str]]:
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
             if user_info.token is None:
-                return MessageData(content='You should set your DeepL token on DM first.')
+                raise UnexpectedCondition(MSG_NEED_TOKEN)
 
         session = self.free_api_session if is_free_user(user_info.token) else self.pro_api_session
         async with session.get(
             '/v2/usage',
             headers={'Authorization': f'DeepL-Auth-Key {user_info.token}'},
         ) as res:
-            msg = self.process_status(res.status)
-            if msg is not None:
-                return MessageData(content=msg)
+            self.process_status(res.status)
             json = await res.json()
 
-        embed = Embed(title='\u2139\ufe0f usage', colour=Colour.blue())
-
-        for key in ('character', 'document', 'team_document'):
-            if f'{key}_count' in json:
-                embed.add_field(
-                    name=f'{key} count',
-                    value=f'{json[f"{key}_count"]}/{json[f"{key}_limit"]}',
-                )
-        return MessageData(embeds=[embed])
+        return [
+            (name, f'{json[f"{key}_count"]}/{json[f"{key}_limit"]}')
+            for key, name in (
+                ('character', MSG_USAGE_CHARACTER_COUNT),
+                ('document', MSG_USAGE_DOCUMENT_COUNT),
+                ('team_document', MSG_USAGE_TEAM_DOCUMENT_COUNT),
+            )
+            if f'{key}_count' in json
+        ]

@@ -7,7 +7,7 @@ from asqlite import create_pool
 from discord import Intents
 from discord.ext import commands
 
-from lib import Client, Translator
+from lib import Client, DiscordTranslator, Translator
 
 logger = getLogger(__name__)
 
@@ -25,6 +25,7 @@ class Bot(commands.Bot):
         async with self.api_client.db() as db:
             await db.create_table()
 
+        await self.tree.set_translator(DiscordTranslator())
         await self.add_cog(Translator(self, self.api_client))
         commands = await self.tree.sync()
         logger.info(f'synced commands are: {', '.join(cmd.mention for cmd in commands)}')
