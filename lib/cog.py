@@ -43,7 +43,7 @@ class Translator(commands.Cog):
         self.bot.tree.remove_command(self.translate_instance.name)
 
     def translate_wrapper(self):
-        @context_menu()  # type: ignore[arg-type]
+        @context_menu()
         @allowed_contexts(guilds=True, dms=True, private_channels=True)
         @allowed_installs(guilds=False, users=True)
         async def translate(interaction: Interaction, msg: Message):
@@ -52,7 +52,7 @@ class Translator(commands.Cog):
 
         return translate
 
-    @command()  # type: ignore[arg-type]
+    @command()
     @allowed_contexts(guilds=False, dms=True, private_channels=False)
     @allowed_installs(guilds=False, users=True)
     async def usage(self, interaction: Interaction):
