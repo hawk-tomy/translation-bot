@@ -6,7 +6,6 @@ import io
 import logging
 import logging.handlers
 import os
-import sys
 import types
 from pathlib import Path
 
@@ -36,10 +35,7 @@ class WebhookHandler(logging.Handler):
         super().__init__(level=logging.WARNING)
 
     def emit(self, record: logging.LogRecord) -> None:
-        msg = self.format(record)
-        for path in sys.path:
-            msg = msg.replace(path, '<import_path>')
-        self.queue.put_nowait(msg)
+        self.queue.put_nowait(self.format(record))
 
 
 class WebhookCtxMgr:
