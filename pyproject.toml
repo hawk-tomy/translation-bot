@@ -5,7 +5,7 @@ description = "translation bot for discord using DeepL."
 authors = [{ name = "hawk-tomy", email = "me@mail.hawk-tomy.dev" }]
 requires-python = "==3.12.*"
 dependencies = [
-    "discord.py@git+https://github.com/Rapptz/discord.py.git@master",
+    "discord.py>=2.4",
     "asqlite@git+https://github.com/Rapptz/asqlite.git@master",
     "discord-ext-flow@git+https://github.com/keizaiya/discord-ext-flow.git@main",
     # .
