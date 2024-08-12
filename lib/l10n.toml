@@ -1,21 +1,21 @@
 [en-US]
-MSG_NEED_TOKEN = "You should set your DeepL token on DM first."
+MSG_NEED_KEY = "You should set your DeepL key on DM first."
 MSG_NEED_LOCALE = "You should set your target locale on DM first."
-MSG_NEED_TOKEN_AND_LOCALE = "You should set your DeepL token and target locale on DM first."
-MSG_403 = "Invalid DeepL token. Please check your token."
+MSG_NEED_KEY_AND_LOCALE = "You should set your DeepL key and target locale on DM first."
+MSG_403 = "Invalid DeepL key. Please check your key."
 MSG_456 = "Quota exceeded. Can not translate anymore."
 MSG_429 = "Too many requests. Please wait a moment."
 MSG_500_OR_MORE = "Internal server error. Please try again later."
 MSG_UNKNOWN_STATUS = "Unknown error. Please try again later."
 
 MSG_COMMAND_NAME_SETTING = "setting"
-MSG_COMMAND_DESCRIPTION_SETTING = "setting of token and target locale."
+MSG_COMMAND_DESCRIPTION_SETTING = "setting of key and target locale."
 
 MSG_COMMAND_NAME_SHOW = "show"
 MSG_COMMAND_DESCRIPTION_SHOW = "show your setting."
 
-MSG_COMMAND_NAME_TOKEN = "token"
-MSG_COMMAND_DESCRIPTION_TOKEN = "set DeepL token for translation in modal."
+MSG_COMMAND_NAME_KEY = "key"
+MSG_COMMAND_DESCRIPTION_KEY = "set DeepL key for translation in modal."
 
 MSG_COMMAND_NAME_LOCALE = "locale"
 MSG_COMMAND_DESCRIPTION_LOCALE = "set target locale for translation in select."
@@ -27,12 +27,12 @@ MSG_COMMAND_NAME_TRANSLATE = "translate"
 
 MSG_NOT_SET = "NOT SET"
 
-MSG_TOKEN_API_FREE = "Free API user token"
-MSG_TOKEN_API_PRO = "Pro API user token"
-MSG_TOKEN_MODAL_TITLE = "your DeepL token"
-MSG_TOKEN_MODAL_LABEL = "token"
-MSG_TOKEN_MODAL_PLACEHOLDER = "your DeepL token here."
-MSG_TOKEN_SAVED = "your token has been saved!"
+MSG_KEY_API_FREE = "Free API user key"
+MSG_KEY_API_PRO = "Pro API user key"
+MSG_KEY_MODAL_TITLE = "your DeepL key"
+MSG_KEY_MODAL_LABEL = "key"
+MSG_KEY_MODAL_PLACEHOLDER = "your DeepL key here."
+MSG_KEY_SAVED = "your key has been saved!"
 
 MSG_USAGE_EMBED_TITLE = "\u2139\ufe0f usage"
 MSG_USAGE_CHARACTER_COUNT = "character count"
@@ -41,29 +41,29 @@ MSG_USAGE_TEAM_DOCUMENT_COUNT = "team document count"
 
 MSG_SETTING_SHOW_PLACEHOLDER = """
 ## setting
-- token: {token}
+- key: {key}
 - target locale: {locale}
 """
 MSG_SETTING_LOCALE_PLACEHOLDER = "target locale has been set to `{locale}`."
 
 [en-GB]
-MSG_NEED_TOKEN = "You should set your DeepL token on DM first."
+MSG_NEED_KEY = "You should set your DeepL key on DM first."
 MSG_NEED_LOCALE = "You should set your target locale on DM first."
-MSG_NEED_TOKEN_AND_LOCALE = "You should set your DeepL token and target locale on DM first."
-MSG_403 = "Invalid DeepL token. Please check your token."
+MSG_NEED_KEY_AND_LOCALE = "You should set your DeepL key and target locale on DM first."
+MSG_403 = "Invalid DeepL key. Please check your key."
 MSG_456 = "Quota exceeded. Can not translate anymore."
 MSG_429 = "Too many requests. Please wait a moment."
 MSG_500_OR_MORE = "Internal server error. Please try again later."
 MSG_UNKNOWN_STATUS = "Unknown error. Please try again later."
 
 MSG_COMMAND_NAME_SETTING = "setting"
-MSG_COMMAND_DESCRIPTION_SETTING = "setting of token and target locale."
+MSG_COMMAND_DESCRIPTION_SETTING = "setting of key and target locale."
 
 MSG_COMMAND_NAME_SHOW = "show"
 MSG_COMMAND_DESCRIPTION_SHOW = "show your setting."
 
-MSG_COMMAND_NAME_TOKEN = "token"
-MSG_COMMAND_DESCRIPTION_TOKEN = "set DeepL token for translation in modal."
+MSG_COMMAND_NAME_KEY = "key"
+MSG_COMMAND_DESCRIPTION_KEY = "set DeepL key for translation in modal."
 
 MSG_COMMAND_NAME_LOCALE = "locale"
 MSG_COMMAND_DESCRIPTION_LOCALE = "set target locale for translation in select."
@@ -75,12 +75,12 @@ MSG_COMMAND_NAME_TRANSLATE = "translate"
 
 MSG_NOT_SET = "NOT SET"
 
-MSG_TOKEN_API_FREE = "Free API user token"
-MSG_TOKEN_API_PRO = "Pro API user token"
-MSG_TOKEN_MODAL_TITLE = "your DeepL token"
-MSG_TOKEN_MODAL_LABEL = "token"
-MSG_TOKEN_MODAL_PLACEHOLDER = "your DeepL token here."
-MSG_TOKEN_SAVED = "your token has been saved!"
+MSG_KEY_API_FREE = "Free API user key"
+MSG_KEY_API_PRO = "Pro API user key"
+MSG_KEY_MODAL_TITLE = "your DeepL key"
+MSG_KEY_MODAL_LABEL = "key"
+MSG_KEY_MODAL_PLACEHOLDER = "your DeepL key here."
+MSG_KEY_SAVED = "your key has been saved!"
 
 MSG_USAGE_EMBED_TITLE = "\u2139\ufe0f usage"
 MSG_USAGE_CHARACTER_COUNT = "character count"
@@ -89,29 +89,29 @@ MSG_USAGE_TEAM_DOCUMENT_COUNT = "team document count"
 
 MSG_SETTING_SHOW_PLACEHOLDER = """
 ## setting
-- token: {token}
+- key: {key}
 - target locale: {locale}
 """
 MSG_SETTING_LOCALE_PLACEHOLDER = "target locale has been set to `{locale}`."
 
 [ja]
-MSG_NEED_TOKEN = "DeepLのトークンをDMで設定する必要があります。"
+MSG_NEED_KEY = "DeepLのキーをDMで設定する必要があります。"
 MSG_NEED_LOCALE = "翻訳先の言語をDMで設定する必要があります。"
-MSG_NEED_TOKEN_AND_LOCALE = "DeepLのトークンと翻訳先の言語をDMで設定する必要があります。"
-MSG_403 = "無効なDeepLトークンです。トークンを確認してください。"
+MSG_NEED_KEY_AND_LOCALE = "DeepLのキーと翻訳先の言語をDMで設定する必要があります。"
+MSG_403 = "無効なDeepLキーです。キーを確認してください。"
 MSG_456 = "上限に達しています。これ以上翻訳できません。"
 MSG_429 = "リクエストが多すぎます。しばらくしてから再度お試しください。"
 MSG_500_OR_MORE = "内部サーバーエラーです。しばらくしてから再度お試しください。"
 MSG_UNKNOWN_STATUS = "不明なエラーです。しばらくしてから再度お試しください。"
 
 MSG_COMMAND_NAME_SETTING = "設定"
-MSG_COMMAND_DESCRIPTION_SETTING = "トークンと翻訳先の言語の設定を行います。"
+MSG_COMMAND_DESCRIPTION_SETTING = "キーと翻訳先の言語の設定を行います。"
 
 MSG_COMMAND_NAME_SHOW = "表示"
 MSG_COMMAND_DESCRIPTION_SHOW = "設定を表示します。"
 
-MSG_COMMAND_NAME_TOKEN = "トークン"
-MSG_COMMAND_DESCRIPTION_TOKEN = "DeepLのトークンを設定します。"
+MSG_COMMAND_NAME_KEY = "キー"
+MSG_COMMAND_DESCRIPTION_KEY = "DeepLのキーを設定します。"
 
 MSG_COMMAND_NAME_LOCALE = "言語"
 MSG_COMMAND_DESCRIPTION_LOCALE = "翻訳先の言語を設定します。"
@@ -123,12 +123,12 @@ MSG_COMMAND_NAME_TRANSLATE = "翻訳"
 
 MSG_NOT_SET = "未設定"
 
-MSG_TOKEN_API_FREE = "無料APIユーザーのトークン"
-MSG_TOKEN_API_PRO = "有料APIユーザーのトークン"
-MSG_TOKEN_MODAL_TITLE = "DeepLのトークン"
-MSG_TOKEN_MODAL_LABEL = "トークン"
-MSG_TOKEN_MODAL_PLACEHOLDER = "ここにトークンを入力してください。"
-MSG_TOKEN_SAVED = "トークンを保存しました！"
+MSG_KEY_API_FREE = "無料APIユーザーのキー"
+MSG_KEY_API_PRO = "有料APIユーザーのキー"
+MSG_KEY_MODAL_TITLE = "DeepLのキー"
+MSG_KEY_MODAL_LABEL = "キー"
+MSG_KEY_MODAL_PLACEHOLDER = "ここにキーを入力してください。"
+MSG_KEY_SAVED = "キーを保存しました！"
 
 MSG_USAGE_EMBED_TITLE = "\u2139\ufe0f 使用済みの量"
 MSG_USAGE_CHARACTER_COUNT = "文字数"
@@ -137,7 +137,7 @@ MSG_USAGE_TEAM_DOCUMENT_COUNT = "チームドキュメント数"
 
 MSG_SETTING_SHOW_PLACEHOLDER = """
 ## 設定
-- トークン: {token}
+- キー: {key}
 - 翻訳先の言語: {locale}
 """
 MSG_SETTING_LOCALE_PLACEHOLDER = "翻訳先の言語を`{locale}`に設定しました。"

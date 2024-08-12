@@ -16,9 +16,9 @@ from .localization import (
     MSG_429,
     MSG_456,
     MSG_500_OR_MORE,
+    MSG_NEED_KEY,
+    MSG_NEED_KEY_AND_LOCALE,
     MSG_NEED_LOCALE,
-    MSG_NEED_TOKEN,
-    MSG_NEED_TOKEN_AND_LOCALE,
     MSG_UNKNOWN_STATUS,
     MSG_USAGE_CHARACTER_COUNT,
     MSG_USAGE_DOCUMENT_COUNT,
@@ -81,18 +81,18 @@ class Client:
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
             if user_info.is_empty():
-                raise UnexpectedCondition(MSG_NEED_TOKEN_AND_LOCALE)
-            if user_info.token is None:
-                raise UnexpectedCondition(MSG_NEED_TOKEN)
+                raise UnexpectedCondition(MSG_NEED_KEY_AND_LOCALE)
+            if user_info.key is None:
+                raise UnexpectedCondition(MSG_NEED_KEY)
             if user_info.target_locale is None:
                 raise UnexpectedCondition(MSG_NEED_LOCALE)
 
         k, v = zip(*pair.encode())
-        session = self.free_api_session if is_free_user(user_info.token) else self.pro_api_session
+        session = self.free_api_session if is_free_user(user_info.key) else self.pro_api_session
 
         async with session.post(
             '/v2/translate',
-            headers={'Authorization': f'DeepL-Auth-Key {user_info.token}'},
+            headers={'Authorization': f'DeepL-Auth-Key {user_info.key}'},
             params={'text': v, 'target_lang': user_info.target_locale},
         ) as resp:
             self.process_status(resp.status)
@@ -103,13 +103,13 @@ class Client:
     async def fetch_usage(self, user_id: int) -> list[tuple[locale_str, str]]:
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
-            if user_info.token is None:
-                raise UnexpectedCondition(MSG_NEED_TOKEN)
+            if user_info.key is None:
+                raise UnexpectedCondition(MSG_NEED_KEY)
 
-        session = self.free_api_session if is_free_user(user_info.token) else self.pro_api_session
+        session = self.free_api_session if is_free_user(user_info.key) else self.pro_api_session
         async with session.get(
             '/v2/usage',
-            headers={'Authorization': f'DeepL-Auth-Key {user_info.token}'},
+            headers={'Authorization': f'DeepL-Auth-Key {user_info.key}'},
         ) as res:
             self.process_status(res.status)
             json = await res.json()

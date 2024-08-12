@@ -13,15 +13,15 @@ if TYPE_CHECKING:
 
 class UserInfo(NamedTuple):
     user_id: int
-    token: str | None
+    key: str | None
     target_locale: LocaleString | None
 
     def is_empty(self) -> bool:
-        return self.token is None and self.target_locale is None
+        return self.key is None and self.target_locale is None
 
 
-def is_free_user(token: str) -> bool:
-    return token.endswith(':fx')
+def is_free_user(key: str) -> bool:
+    return key.endswith(':fx')
 
 
 class DBClient:
@@ -38,11 +38,11 @@ class DBClient:
 
     async def create_table(self):
         await self.conn.execute(
-            'CREATE TABLE IF NOT EXISTS user (user_id INT PRIMARY KEY, token TEXT, target_locale TEXT)'
+            'CREATE TABLE IF NOT EXISTS user (user_id INT PRIMARY KEY, key TEXT, target_locale TEXT)'
         )
 
     async def get_user_info(self, user_id: int) -> UserInfo:
-        async with self.conn.execute('SELECT token, target_locale FROM user WHERE user_id = ?', (user_id,)) as cur:
+        async with self.conn.execute('SELECT key, target_locale FROM user WHERE user_id = ?', (user_id,)) as cur:
             rows = await cur.fetchone()
             if rows:
                 return UserInfo(user_id, rows[0], rows[1])
@@ -51,6 +51,6 @@ class DBClient:
 
     async def update_user_info(self, user_info: UserInfo) -> None:
         await self.conn.execute(
-            'REPLACE INTO user (user_id, token, target_locale) VALUES (?, ?, ?)',
-            (user_info.user_id, user_info.token, user_info.target_locale),
+            'REPLACE INTO user (user_id, key, target_locale) VALUES (?, ?, ?)',
+            (user_info.user_id, user_info.key, user_info.target_locale),
         )
