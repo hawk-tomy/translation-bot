@@ -64,7 +64,7 @@ class Translator(commands.Cog):
         return translate
 
     @command(name=MSG_COMMAND_NAME_USAGE, description=MSG_COMMAND_DESCRIPTION_USAGE)
-    @allowed_contexts(guilds=False, dms=True, private_channels=False)
+    @allowed_contexts(guilds=True, dms=True, private_channels=True)
     @allowed_installs(guilds=False, users=True)
     async def usage(self, interaction: Interaction):
         """show amount of usage."""

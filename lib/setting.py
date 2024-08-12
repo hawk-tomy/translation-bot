@@ -54,7 +54,7 @@ class TokenInputModal(ui.Modal):
         await interaction.response.send_message(await translate(interaction, MSG_TOKEN_SAVED))
 
 
-@allowed_contexts(guilds=False, dms=True, private_channels=False)
+@allowed_contexts(guilds=True, dms=True, private_channels=True)
 @allowed_installs(guilds=False, users=True)
 class Setting(Group):
     """setting of token and target locale"""
