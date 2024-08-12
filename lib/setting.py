@@ -51,7 +51,8 @@ class TokenInputModal(ui.Modal):
         async with self.api_client.db() as db:
             await db.update_user_info(user_info)
 
-        await interaction.response.send_message(await translate(interaction, MSG_TOKEN_SAVED))
+        ephemeral = not interaction.context.dm_channel
+        await interaction.response.send_message(await translate(interaction, MSG_TOKEN_SAVED), ephemeral=ephemeral)
 
 
 @allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -85,7 +86,8 @@ class Setting(Group):
 
         locale = await translate(interaction, user_info.target_locale or MSG_NOT_SET)
         msg = await translate(interaction, MSG_SETTING_SHOW_PLACEHOLDER)
-        await interaction.response.send_message(msg.format(token=has_token, locale=locale))
+        ephemeral = not interaction.context.dm_channel
+        await interaction.response.send_message(msg.format(token=has_token, locale=locale), ephemeral=ephemeral)
 
     @command(name=MSG_COMMAND_NAME_TOKEN, description=MSG_COMMAND_DESCRIPTION_TOKEN)
     async def token(self, interaction: Interaction):
@@ -110,5 +112,6 @@ class Setting(Group):
             await db.update_user_info(user_info=user_info._replace(target_locale=locale))
 
         await interaction.response.send_message(
-            (await translate(interaction, MSG_SETTING_LOCALE_PLACEHOLDER)).format(locale=locale)
+            (await translate(interaction, MSG_SETTING_LOCALE_PLACEHOLDER)).format(locale=locale),
+            ephemeral=not interaction.context.dm_channel,
         )

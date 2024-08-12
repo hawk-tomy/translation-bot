@@ -55,10 +55,11 @@ class Translator(commands.Cog):
         @allowed_installs(guilds=False, users=True)
         async def translate(interaction: Interaction, message: Message):
             user_id = interaction.user.id
+            ephemeral = not interaction.context.dm_channel
             try:
                 msg = await self.api_client.translate(user_id, StringPair(message))
             except UnexpectedCondition as e:
-                msg = MessageData(content=await translate_static(interaction, e.msg))
+                msg = MessageData(content=await translate_static(interaction, e.msg), ephemeral=ephemeral)
             await Controller(ProxyModel(msg)).invoke(interaction)
 
         return translate
@@ -69,14 +70,15 @@ class Translator(commands.Cog):
     async def usage(self, interaction: Interaction):
         """show amount of usage."""
         user_id = interaction.user.id
+        ephemeral = not interaction.context.dm_channel
         try:
             data = await self.api_client.fetch_usage(user_id)
             embed = Embed(title=await translate_static(interaction, MSG_USAGE_EMBED_TITLE), colour=Colour.blue())
             for name, value in data:
                 embed.add_field(name=name, value=value)
-            msg = MessageData(embeds=[embed])
+            msg = MessageData(embeds=[embed], ephemeral=ephemeral)
         except UnexpectedCondition as e:
-            msg = MessageData(content=await translate_static(interaction, e.msg))
+            msg = MessageData(content=await translate_static(interaction, e.msg), ephemeral=ephemeral)
 
         await Controller(ProxyModel(msg)).invoke(interaction)
 
