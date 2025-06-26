@@ -5,15 +5,14 @@ description = "translation bot for discord using DeepL."
 authors = [{ name = "hawk-tomy", email = "me@mail.hawk-tomy.dev" }]
 requires-python = "==3.12.*"
 dependencies = [
-    "discord.py>=2.4",
+    "discord.py>=2.5",
     "asqlite@git+https://github.com/Rapptz/asqlite.git@master",
-    "discord-ext-flow@git+https://github.com/keizaiya/discord-ext-flow.git@main",
     # .
 ]
 readme = "README.md"
 license = { text = "MIT" }
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pyright>=1.1.361",
     "mypy>=1.10.0",
@@ -21,15 +20,9 @@ dev = [
     #.
 ]
 
-[tool.pdm]
-distribution = false
-
-[tool.pdm.scripts]
-format = "ruff format ."
-ruff = "ruff check ."
-pyright = "pyright ."
-mypy = "mypy ."
-check = { composite = ["format", "ruff", "pyright", "mypy"], keep_going = true }
+[tool.uv]
+package = false
+python-preference = "only-system"
 
 [tool.pyright]
 typeCheckingMode = "strict"

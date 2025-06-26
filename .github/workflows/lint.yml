@@ -20,16 +20,65 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up PDM
-        uses: pdm-project/setup-pdm@v3
+      - name: Set up CPython ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.7.15"
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
-          pdm sync -d -G dev
+          uv sync --group dev
 
-      - name: Run check # see tool.pdm.script.check in pyproject.toml.
+      - name: uv-check-lock-file
+        id: uv-check-lock-file
+        continue-on-error: true
         run: |
-          pdm run check
+          uv lock --check
+
+      - name: ruff-format
+        id: ruff-format
+        continue-on-error: true
+        run: |
+          uv run ruff format --check --diff .
+
+      - name: ruff-check
+        id: ruff-check
+        continue-on-error: true
+        run: |
+          uv run ruff check --no-fix --output-format=github .
+
+      - name: pyright
+        id: pyright
+        continue-on-error: true
+        run: |
+          uv run pyright .
+
+      - name: mypy
+        id: mypy
+        continue-on-error: true
+        run: |
+          uv run mypy .
+
+      - name: Check failure
+        env:
+          text: "\
+            ${{ steps.uv-check-lock-file.outcome == 'failure' && 'check lock file,' || '' }}\
+            ${{ steps.ruff-format.outcome == 'failure'        && 'ruff format,'     || '' }}\
+            ${{ steps.ruff-check.outcome == 'failure'         && 'ruff check,'      || '' }}\
+            ${{ steps.pyright.outcome == 'failure'            && 'pyright,'         || '' }}\
+            ${{ steps.mypy.outcome == 'failure'               && 'mypy,'            || '' }}\
+            "
+        run: |
+          if [ -n "${text}" ]; then
+            echo "failed: ${text}"
+            exit 1
+          else
+            echo "All success"
+          fi
