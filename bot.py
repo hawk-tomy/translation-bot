@@ -28,7 +28,7 @@ class Bot(commands.Bot):
         await self.tree.set_translator(DiscordTranslator())
         await self.add_cog(Translator(self, self.api_client))
         commands = await self.tree.sync()
-        logger.info(f'synced commands are: {', '.join(cmd.mention for cmd in commands)}')
+        logger.info(f'synced commands are: {", ".join(cmd.mention for cmd in commands)}')
 
     async def runner(self):
         async with self, create_pool(os.getenv('DATABASE_PATH', './db/db.sqlite3')) as pool:
