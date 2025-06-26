@@ -3,7 +3,7 @@ from __future__ import annotations
 from logging import getLogger
 from typing import NamedTuple, TYPE_CHECKING
 
-from discord import Color, Embed, Message
+from discord import Embed, Message
 
 if TYPE_CHECKING:
     from typing import Any, Generator
@@ -99,7 +99,7 @@ class StringPair:
         if content is None or len(content) < 2000:
             return [MessageData(content=content, embeds=embeds)]
         contents = list(split_line(content, 2000))
-        embeds = [Embed(description=content, color=Color.blue()) for content in contents] + embeds
+
         chunked_embeds: list[list[Embed]] = [[]]
         total = 0
         for e in embeds:
@@ -108,4 +108,11 @@ class StringPair:
                 total = 0
             chunked_embeds[-1].append(e)
             total += len(e)
-        return [MessageData(content=None, embeds=es) for es in chunked_embeds]
+
+        chunked_messages = [MessageData(content=content) for content in contents]
+        if chunked_messages:
+            chunked_messages[-1]._replace(embeds=chunked_embeds[0])
+            chunked_messages.extend(MessageData(embeds=es) for es in chunked_embeds[1:])
+        else:
+            chunked_messages = [MessageData(embeds=es) for es in chunked_embeds]
+        return chunked_messages
