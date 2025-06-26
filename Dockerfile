@@ -1,17 +1,21 @@
-FROM python:3.12
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm AS builder
+
+WORKDIR /app
+
+COPY ./pyproject.toml ./pyproject.toml
+COPY ./uv.lock ./uv.lock
+
+RUN uv sync --frozen
+
+
+FROM python:3.12-slim AS prod
 
 ARG COMMIT_HASH
 ENV COMMIT_HASH=${COMMIT_HASH:-NotSetCommitHash}
 
 WORKDIR /app
 
-RUN pip install -U pdm
-
-COPY ./pyproject.toml ./pyproject.toml
-COPY ./pdm.lock ./pdm.lock
-
-RUN pdm install
-
+COPY --from=builder /app/.venv /app/.venv
 COPY . .
 
 CMD ["./.venv/bin/python", "./main.py"]

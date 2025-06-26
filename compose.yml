@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: prod
     container_name: translation-bot
     env_file:
       - ./.env
