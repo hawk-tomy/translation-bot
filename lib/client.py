@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 from aiohttp import ClientSession, __version__ as aiohttp_version
 from discord import Locale
 from discord.app_commands import locale_str
-from discord.ext.flow import Message as MessageData
 
 from .db import DBClient, is_free_user
 from .locale import LocaleString, discord_locale_into_deepl_locale
@@ -28,6 +27,8 @@ from .string_pair import StringPair
 
 if TYPE_CHECKING:
     from bot import Bot
+
+    from .string_pair import MessageData
 
 USER_AGENT = f'discord translation bot (repo:https://github.com/hawk-tomy/translation-bot.git python:{version} aiohttp:{aiohttp_version})'
 logger = getLogger(__name__)
@@ -77,7 +78,7 @@ class Client:
             case _:  # Unknown status
                 raise UnexpectedCondition(MSG_UNKNOWN_STATUS)
 
-    async def translate(self, user_id: int, pair: StringPair) -> MessageData:
+    async def translate(self, user_id: int, pair: StringPair) -> list[MessageData]:
         async with self.db() as db:
             user_info = await db.get_user_info(user_id)
             if user_info.is_empty():

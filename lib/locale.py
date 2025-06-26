@@ -4,8 +4,7 @@ from functools import cache
 from typing import Literal, TypeGuard, get_args
 
 from discord import Interaction, Locale as DiscordLocale
-from discord.app_commands import Transformer
-from discord.app_commands.models import Choice
+from discord.app_commands import Choice, Transformer
 
 type LocaleString = Literal[  # type: ignore[valid-type]
     'AR',

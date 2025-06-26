@@ -1,12 +1,33 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Any, Generator
+from typing import NamedTuple, TYPE_CHECKING
 
-from discord import Embed, Message
-from discord.ext.flow import Message as MessageData
+from discord import Color, Embed, Message
+
+if TYPE_CHECKING:
+    from typing import Any, Generator
 
 logger = getLogger(__name__)
+
+
+def split_line(string: str, num: int) -> Generator[str, Any, Any]:
+    string, num = str(string), int(num)
+    while True:
+        if len(string) <= num:
+            yield string
+            return
+        str1, str2 = string[:num], string[num:]
+        str1_split = str1.splitlines(keepends=True)
+        if len(str1_split) > 1:
+            str1, str2 = ''.join(str1_split[:-1]), str1_split[-1] + str2
+        yield str1
+        string = str2
+
+
+class MessageData(NamedTuple):
+    content: str | None = None
+    embeds: list[Embed] = []
 
 
 class StringPair:
@@ -44,7 +65,7 @@ class StringPair:
         if e.footer and e.footer.text:
             yield (f'{self.embeds}.{i}.{self.embeds_footer}', e.footer.text)
 
-    def decode(self, pair: tuple[tuple[str, str], ...]) -> MessageData:
+    def decode(self, pair: tuple[tuple[str, str], ...]) -> list[MessageData]:
         content: str | None = None
         embeds: list[Embed] = [Embed.from_dict(e.to_dict()) for e in self.msg.embeds]
         for k, v in pair:
@@ -75,4 +96,16 @@ class StringPair:
                     logger.warning(f'invalid key: key={k}, value={v}')
             else:
                 logger.warning(f'invalid key: key={k}, value={v}')
-        return MessageData(content=content, embeds=embeds, ephemeral=True)
+        if content is None or len(content) < 2000:
+            return [MessageData(content=content, embeds=embeds)]
+        contents = list(split_line(content, 2000))
+        embeds = [Embed(description=content, color=Color.blue()) for content in contents] + embeds
+        chunked_embeds: list[list[Embed]] = [[]]
+        total = 0
+        for e in embeds:
+            if len(chunked_embeds) >= 10 or total + len(e) > 6000:
+                chunked_embeds.append([])
+                total = 0
+            chunked_embeds[-1].append(e)
+            total += len(e)
+        return [MessageData(content=None, embeds=es) for es in chunked_embeds]

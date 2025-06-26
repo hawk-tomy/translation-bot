@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from discord import Colour, Embed, Interaction, Message
 from discord.app_commands import allowed_contexts, allowed_installs, command, context_menu
 from discord.ext import commands
-from discord.ext.flow import Controller, Message as MessageData, ModelBase
 
 from .client import Client, UnexpectedCondition
 from .localization import (
@@ -17,22 +16,12 @@ from .localization import (
     translate as translate_static,
 )
 from .setting import Setting
-from .string_pair import StringPair
+from .string_pair import MessageData, StringPair
 
 if TYPE_CHECKING:
     from bot import Bot
 
 logger = getLogger(__name__)
-
-
-class ProxyModel(ModelBase):
-    m: MessageData
-
-    def __init__(self, m: MessageData):
-        self.m = m
-
-    def message(self) -> MessageData:
-        return self.m
 
 
 class Translator(commands.Cog):
@@ -49,18 +38,27 @@ class Translator(commands.Cog):
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.translate_instance.name)
 
+    async def sender(self, interaction: Interaction, msg: MessageData) -> None:
+        ephemeral = not interaction.context.dm_channel
+        await interaction.followup.send(content=msg.content or '', embeds=msg.embeds, ephemeral=ephemeral)
+
     def translate_wrapper(self):
         @context_menu(name=MSG_COMMAND_NAME_TRANSLATE)
         @allowed_contexts(guilds=True, dms=True, private_channels=True)
         @allowed_installs(guilds=False, users=True)
         async def translate(interaction: Interaction, message: Message):
+            await interaction.response.defer(ephemeral=True)
             user_id = interaction.user.id
             ephemeral = not interaction.context.dm_channel
+
             try:
-                msg = await self.api_client.translate(user_id, StringPair(message))
+                msgs = await self.api_client.translate(user_id, StringPair(message))
             except UnexpectedCondition as e:
-                msg = MessageData(content=await translate_static(interaction, e.msg), ephemeral=ephemeral)
-            await Controller(ProxyModel(msg)).invoke(interaction)
+                await interaction.followup.send(content=await translate_static(interaction, e.msg), ephemeral=ephemeral)
+                return
+
+            for msg in msgs:
+                await interaction.followup.send(content=msg.content or '', embeds=msg.embeds, ephemeral=ephemeral)
 
         return translate
 
@@ -69,17 +67,19 @@ class Translator(commands.Cog):
     @allowed_installs(guilds=False, users=True)
     async def usage(self, interaction: Interaction):
         """show amount of usage."""
-        user_id = interaction.user.id
+        await interaction.response.defer(ephemeral=True)
         ephemeral = not interaction.context.dm_channel
+        user_id = interaction.user.id
+
         try:
             data = await self.api_client.fetch_usage(user_id)
-            embed = Embed(title=await translate_static(interaction, MSG_USAGE_EMBED_TITLE), colour=Colour.blue())
-            for name, value in data:
-                embed.add_field(name=name, value=value)
-            msg = MessageData(embeds=[embed], ephemeral=ephemeral)
         except UnexpectedCondition as e:
-            msg = MessageData(content=await translate_static(interaction, e.msg), ephemeral=ephemeral)
+            await interaction.followup.send(content=await translate_static(interaction, e.msg), ephemeral=ephemeral)
+            return
 
-        await Controller(ProxyModel(msg)).invoke(interaction)
+        embed = Embed(title=await translate_static(interaction, MSG_USAGE_EMBED_TITLE), colour=Colour.blue())
+        for name, value in data:
+            embed.add_field(name=name, value=value)
+        await interaction.followup.send(embeds=[embed], ephemeral=ephemeral)
 
     setting = Setting()
