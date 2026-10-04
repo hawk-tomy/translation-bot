@@ -75,7 +75,7 @@ class WebhookSender:
                     await webhook.send(file=file)
                 elif msg is not None:
                     await webhook.send(msg)
-            except Exception:
+            except discord.DiscordException:
                 await asyncio.sleep(sleep_until)
                 sleep_until <<= 2
             else:

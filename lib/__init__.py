@@ -4,4 +4,4 @@ from .client import Client
 from .cog import Translator
 from .localization import DiscordTranslator
 
-__all__ = ('Client', 'Translator', 'DiscordTranslator')
+__all__ = ('Client', 'DiscordTranslator', 'Translator')

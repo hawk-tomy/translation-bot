@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import NamedTuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from discord import Embed, Message
 
 if TYPE_CHECKING:
-    from typing import Any, Generator
+    from collections.abc import Generator
+    from typing import Any
 
 logger = getLogger(__name__)
 
@@ -27,7 +28,7 @@ def split_line(string: str, num: int) -> Generator[str, Any, Any]:
 
 class MessageData(NamedTuple):
     content: str | None = None
-    embeds: list[Embed] = []
+    embeds: tuple[Embed, ...] = ()
 
 
 class StringPair:
@@ -97,7 +98,7 @@ class StringPair:
             else:
                 logger.warning(f'invalid key: key={k}, value={v}')
         if content is None or len(content) < 2000:
-            return [MessageData(content=content, embeds=embeds)]
+            return [MessageData(content=content, embeds=tuple(embeds))]
         contents = list(split_line(content, 2000))
 
         chunked_embeds: list[list[Embed]] = [[]]
@@ -111,8 +112,8 @@ class StringPair:
 
         chunked_messages = [MessageData(content=content) for content in contents]
         if chunked_messages:
-            chunked_messages[-1]._replace(embeds=chunked_embeds[0])
-            chunked_messages.extend(MessageData(embeds=es) for es in chunked_embeds[1:])
+            chunked_messages[-1]._replace(embeds=tuple(chunked_embeds[0]))
+            chunked_messages.extend(MessageData(embeds=tuple(es)) for es in chunked_embeds[1:])
         else:
-            chunked_messages = [MessageData(embeds=es) for es in chunked_embeds]
+            chunked_messages = [MessageData(embeds=tuple(es)) for es in chunked_embeds]
         return chunked_messages
