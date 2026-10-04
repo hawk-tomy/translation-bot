@@ -33,7 +33,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --group dev
+          uv sync --locked --group dev
 
       - name: uv-check-lock-file
         id: uv-check-lock-file
@@ -45,25 +45,25 @@ jobs:
         id: ruff-format
         continue-on-error: true
         run: |
-          uv run ruff format --check --diff .
+          uv run --locked ruff format --check --diff .
 
       - name: ruff-check
         id: ruff-check
         continue-on-error: true
         run: |
-          uv run ruff check --no-fix --output-format=github .
+          uv run --locked ruff check --no-fix --output-format=github .
 
       - name: pyright
         id: pyright
         continue-on-error: true
         run: |
-          uv run pyright .
+          uv run --locked pyright .
 
       - name: mypy
         id: mypy
         continue-on-error: true
         run: |
-          uv run mypy .
+          uv run --locked mypy .
 
       - name: Check failure
         env:
